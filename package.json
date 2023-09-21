@@ -1,0 +1,7 @@
+{
+  "name": "com.crimsilk.unity-utilities",
+  "version": "1.0.0",
+  "displayName": "Crimsilks Unity Utilities",
+  "description": "This package contains all my Unity utilities and is a easy way of integrating general utility classes into multiple projects.",
+  "unity": "2019.1"
+}
