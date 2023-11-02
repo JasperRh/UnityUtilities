@@ -14,6 +14,19 @@ namespace Crimsilk.Utilities.Extensions
         }
         
         /// <summary>
+        /// Returns a single random object from the enumerable. Returns null if enumerable is empty.
+        /// </summary>
+        public static T Random<T>(this IEnumerable<T> input)
+        {
+            if (input.Count() == 0)
+            {
+                return default(T);
+            }
+
+            return input.ElementAt(random.Next(input.Count()));
+        }
+        
+        /// <summary>
         /// Returns multiple random objects from the enumerable.
         /// </summary>
         /// <param name="amount">The amount of random items to be selected</param>
