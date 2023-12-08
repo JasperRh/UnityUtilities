@@ -101,8 +101,7 @@ namespace Crimsilk.Utilities.Extensions
         {
             Type type = comp.GetType();
             if (type != other.GetType()) return null; // type mis-match
-            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance |
-                                 BindingFlags.Default | BindingFlags.DeclaredOnly;
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Default;
             PropertyInfo[] pinfos = type.GetProperties(flags);
             foreach (var pinfo in pinfos)
             {
