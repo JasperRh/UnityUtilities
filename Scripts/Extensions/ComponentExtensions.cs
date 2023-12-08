@@ -14,7 +14,8 @@ namespace Crimsilk.Utilities.Extensions
         public static void DestroyRequiredComponents(this Component component)
         {
             MemberInfo memberInfo = component.GetType();
-            RequireComponent[] requiredComponentAttributes = Attribute.GetCustomAttributes(memberInfo, typeof(RequireComponent), true) as RequireComponent[];
+            RequireComponent[] requiredComponentAttributes =
+                Attribute.GetCustomAttributes(memberInfo, typeof(RequireComponent), true) as RequireComponent[];
             foreach (RequireComponent requiredComponent in requiredComponentAttributes)
             {
                 if (requiredComponent != null && component.GetComponent(requiredComponent.m_Type0) != null)
@@ -22,11 +23,13 @@ namespace Crimsilk.Utilities.Extensions
                     Object.Destroy(component.GetComponent(requiredComponent.m_Type0));
                     continue;
                 }
+
                 if (requiredComponent != null && component.GetComponent(requiredComponent.m_Type1) != null)
                 {
                     Object.Destroy(component.GetComponent(requiredComponent.m_Type1));
                     continue;
                 }
+
                 if (requiredComponent != null && component.GetComponent(requiredComponent.m_Type2) != null)
                 {
                     Object.Destroy(component.GetComponent(requiredComponent.m_Type2));
@@ -49,7 +52,9 @@ namespace Crimsilk.Utilities.Extensions
             {
                 //iterate all component's attributes, look for
                 //the RequireComponent attributes
-                RequireComponent[] requiredComponentAttributes = Attribute.GetCustomAttributes(component.GetType(), typeof(RequireComponent), true) as RequireComponent[];
+                RequireComponent[] requiredComponentAttributes =
+                    Attribute.GetCustomAttributes(component.GetType(), typeof(RequireComponent), true) as
+                        RequireComponent[];
                 foreach (RequireComponent requiredComponent in requiredComponentAttributes)
                 {
                     //check all three of the required types to see if
@@ -59,11 +64,12 @@ namespace Crimsilk.Utilities.Extensions
                         (requiredComponent.m_Type1?.IsAssignableFrom(thisComponentType) ?? false) ||
                         (requiredComponent.m_Type2?.IsAssignableFrom(thisComponentType) ?? false))
                     {
-                     
+
                         dependingComponents.Add(component);
                     }
                 }
             }
+
             return dependingComponents;
         }
 
@@ -74,7 +80,7 @@ namespace Crimsilk.Utilities.Extensions
         public static void DestroyDependingComponents(this Component thisComponent, bool destroySelf = false)
         {
             IEnumerable<Component> dependingComponents = thisComponent.IsRequiredBy();
-            
+
             // Destroy depending components recursively.
             foreach (Component component in dependingComponents)
             {
@@ -88,5 +94,37 @@ namespace Crimsilk.Utilities.Extensions
             }
         }
 
+		/// <summary>
+        /// Creates a copy of the given component.
+        /// </summary>
+        public static T GetCopyOf<T>(this Component comp, T other) where T : Component
+        {
+            Type type = comp.GetType();
+            if (type != other.GetType()) return null; // type mis-match
+            BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance |
+                                 BindingFlags.Default | BindingFlags.DeclaredOnly;
+            PropertyInfo[] pinfos = type.GetProperties(flags);
+            foreach (var pinfo in pinfos)
+            {
+                if (pinfo.CanWrite)
+                {
+                    try
+                    {
+                        pinfo.SetValue(comp, pinfo.GetValue(other, null), null);
+                    }
+                    catch
+                    {
+                    } // In case of NotImplementedException being thrown. For some reason specifying that exception didn't seem to catch it, so I didn't catch anything specific.
+                }
+            }
+
+            FieldInfo[] finfos = type.GetFields(flags);
+            foreach (var finfo in finfos)
+            {
+                finfo.SetValue(comp, finfo.GetValue(other));
+            }
+
+            return comp as T;
+        }
     }
 }
