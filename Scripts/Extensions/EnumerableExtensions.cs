@@ -36,9 +36,9 @@ namespace Crimsilk.Utilities.Extensions
         /// <exception cref="ArgumentException"></exception>
         public static IEnumerable<T> Random<T>(this IEnumerable<T> input, int amount = 1, bool allowDuplicate = false)
         {
-            if (amount <= 0)
+            if (amount < 0)
             {
-                throw new ArgumentException($"Random selection amount must be greater than 0");
+                throw new ArgumentException($"Random selection amount cannot be negative.");
             }
 
             IList<T> inputList = new List<T>(input);
