@@ -125,5 +125,19 @@ namespace Crimsilk.Utilities.Extensions
 
             return comp as T;
         }
+
+		public static T GetComponentInParent<T>(this Component component, bool includeSelf = true) where T : Component
+        {
+            // Get the component in parent objects, including the current object
+            var parentComponent = component.transform.parent == null || includeSelf ? component.GetComponentInParent<T>() : component.transform.parent.GetComponentInParent<T>();
+    
+            // If the component is on the current GameObject, return null
+            if (parentComponent == null || parentComponent.gameObject == component.gameObject)
+            {
+                return null;
+            }
+
+            return parentComponent;
+        }
     }
 }
