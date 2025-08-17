@@ -126,17 +126,71 @@ namespace Crimsilk.Utilities.Extensions
             return comp as T;
         }
 
-		public static T GetComponentInParent<T>(this Component component, bool includeSelf = true) where T : Component
+        /// <summary>
+        /// Retrieves a reference to a component of type T on the specified Component, or any child of the Component. 
+        /// </summary>
+        /// <param name="component">The component</param>
+        /// <param name="failWhenNotFound">Returns null and logs an error when the component is not found.</param>
+        public static T GetComponent<T>(this Component component, bool failWhenNotFound = false) where T : Component
         {
-            // Get the component in parent objects, including the current object
-            var parentComponent = component.transform.parent == null || includeSelf ? component.GetComponentInParent<T>() : component.transform.parent.GetComponentInParent<T>();
-    
-            // If the component is on the current GameObject, return null
-            if (parentComponent == null || parentComponent.gameObject == component.gameObject)
+            var otherComponent = component.GetComponent<T>();
+            if (!otherComponent && failWhenNotFound)
             {
+                Debug.LogError($"Could not find component of type {typeof(T)} on {component.gameObject.name}");
                 return null;
             }
 
+            return otherComponent;
+        }
+        
+        /// <summary>
+        /// Retrieves a reference to a component of type T on the specified Component, or any child of the Component. 
+        /// </summary>
+        /// <param name="component">The component</param>
+        /// <param name="includeSelf">Skip search for the component on itself if false.</param>
+        /// <param name="failWhenNotFound">Returns null and logs an error when the component is not found.</param>
+        public static T GetComponentInChildren<T>(this Component component, bool includeSelf = true, bool failWhenNotFound = false) where T : Component
+        {
+            T childComponent = null;
+            if (component.transform.childCount > 0 || !includeSelf)
+            {
+                for (var i = 0; i < component.transform.childCount; i++)
+                {
+                    var childTransform = component.transform.GetChild(i);
+                    childComponent = childTransform.GetComponentInChildren<T>();
+                    if (childComponent)
+                    {
+                        break;
+                    }
+                }
+            }
+            
+            if (!childComponent && failWhenNotFound)
+            {
+                Debug.LogError($"Could not find component of type {typeof(T)} in child of {component.gameObject.name}");
+                return null;
+            }
+            
+            return childComponent;
+        }
+        
+        /// <summary>
+        /// Retrieves a reference to a component of type T on the specified Component, or any parent of the Component. 
+        /// </summary>
+        /// <param name="component">The component</param>
+        /// <param name="includeSelf">Skip search for the component on itself if false.</param>
+        /// <param name="failWhenNotFound">Returns null and logs an error when the component is not found.</param>
+        public static T GetComponentInParent<T>(this Component component, bool includeSelf = true, bool failWhenNotFound = false) where T : Component
+        {
+            // Get the component in parent objects, including the current object
+            var parentComponent = component.transform.parent == null || includeSelf ? component.GetComponentInParent<T>() : component.transform.parent.GetComponentInParent<T>();
+
+            if (!parentComponent && failWhenNotFound)
+            {
+                Debug.LogError($"Could not find component of type {typeof(T)} in parent of {component.gameObject.name}");
+                return null;
+            }
+            
             return parentComponent;
         }
     }
