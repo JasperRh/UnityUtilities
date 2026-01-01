@@ -1,0 +1,20 @@
+﻿#pragma kernel CopyFloatTextureToBuffer
+
+Texture3D<float> sourceTexture;
+RWStructuredBuffer<float> targetBuffer;
+uint3 textureDimensions;
+
+/// <summary>
+/// Copies a 3D float texture to a 1D structured buffer.
+/// </summary>
+[numthreads(8, 8, 8)]
+void CopyFloatTextureToBuffer(uint3 id : SV_DispatchThreadID)
+{
+    if (any(id >= textureDimensions))
+    {
+        return;
+    }
+
+    uint index = id.x + (id.y * textureDimensions.x) + (id.z * textureDimensions.x * textureDimensions.y);
+    targetBuffer[index] = sourceTexture.Load(int4(id, 0));
+}
