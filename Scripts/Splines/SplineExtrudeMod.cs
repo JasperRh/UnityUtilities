@@ -252,12 +252,6 @@ namespace Crimsilk.Utilities.Splines
        bool IsNullOrEmptyContainer()
        {
            var isNull = m_Container == null || m_Container.Spline == null || m_Container.Splines.Count == 0;
-           if (isNull)
-           {
-               if (Application.isPlaying)
-                   Debug.LogError(k_EmptyContainerError, this);
-           }
-
            return isNull;
        }
 
