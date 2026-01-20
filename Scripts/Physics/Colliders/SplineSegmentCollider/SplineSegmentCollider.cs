@@ -34,7 +34,19 @@ namespace Crimsilk.Utilities.Physics.Colliders.SplineSegmentCollider
 
         private void OnSplineChanged(Spline spline, int knotIndex, SplineModification modification)
         {
-            if (_container != null && spline == _container.Spline)
+            if (_container == null) return;
+
+            bool belongsToContainer = false;
+            foreach (var s in _container.Splines)
+            {
+                if (s == spline)
+                {
+                    belongsToContainer = true;
+                    break;
+                }
+            }
+
+            if (belongsToContainer)
                 UpdateColliders();
         }
 
@@ -61,8 +73,7 @@ namespace Crimsilk.Utilities.Physics.Colliders.SplineSegmentCollider
                 _boxPool.Clear();
             }
 
-            var spline = _container.Spline;
-            if (spline == null || spline.Count < 2)
+            if (_container.Splines.Count == 0)
             {
                 foreach (var b in _boxPool)
                 {
@@ -72,39 +83,45 @@ namespace Crimsilk.Utilities.Physics.Colliders.SplineSegmentCollider
                 return;
             }
 
-            var curveCount = spline.Closed ? spline.Count : spline.Count - 1;
             var boxIndex = 0;
 
-            for (var i = 0; i < curveCount; i++)
+            foreach (var spline in _container.Splines)
             {
-                for (var j = 0; j < segmentCount; j++)
+                if (spline == null || spline.Count < 2) continue;
+
+                var curveCount = spline.Closed ? spline.Count : spline.Count - 1;
+
+                for (var i = 0; i < curveCount; i++)
                 {
-                    var tStartLocal = (float)j / segmentCount;
-                    var tEndLocal = (float)(j + 1) / segmentCount;
+                    for (var j = 0; j < segmentCount; j++)
+                    {
+                        var tStartLocal = (float)j / segmentCount;
+                        var tEndLocal = (float)(j + 1) / segmentCount;
 
-                    var tStartGlobal = (i + tStartLocal) / curveCount;
-                    var tEndGlobal = (i + tEndLocal) / curveCount;
+                        var tStartGlobal = (i + tStartLocal) / curveCount;
+                        var tEndGlobal = (i + tEndLocal) / curveCount;
 
-                    var posStart = (Vector3)spline.EvaluatePosition(tStartGlobal);
-                    var posEnd = (Vector3)spline.EvaluatePosition(tEndGlobal);
+                        var posStart = (Vector3)spline.EvaluatePosition(tStartGlobal);
+                        var posEnd = (Vector3)spline.EvaluatePosition(tEndGlobal);
 
-                    var center = (posStart + posEnd) * 0.5f;
-                    var direction = posEnd - posStart;
-                    var distance = direction.magnitude;
+                        var center = (posStart + posEnd) * 0.5f;
+                        var direction = posEnd - posStart;
+                        var distance = direction.magnitude;
 
-                    if (distance < 0.001f)
-                        continue;
+                        if (distance < 0.001f)
+                            continue;
 
-                    var box = GetOrCreateBox(boxIndex++);
-                    box.gameObject.SetActive(true);
+                        var box = GetOrCreateBox(boxIndex++);
+                        box.gameObject.SetActive(true);
 
-                    box.transform.localPosition = center;
+                        box.transform.localPosition = center;
 
-                    var tCenterGlobal = (i + (tStartLocal + tEndLocal) * 0.5f) / curveCount;
-                    var upVector = (Vector3)spline.EvaluateUpVector(tCenterGlobal);
-                    box.transform.localRotation = Quaternion.LookRotation(direction, upVector);
+                        var tCenterGlobal = (i + (tStartLocal + tEndLocal) * 0.5f) / curveCount;
+                        var upVector = (Vector3)spline.EvaluateUpVector(tCenterGlobal);
+                        box.transform.localRotation = Quaternion.LookRotation(direction, upVector);
 
-                    box.size = new Vector3(thickness.x, thickness.y, distance);
+                        box.size = new Vector3(thickness.x, thickness.y, distance);
+                    }
                 }
             }
 
