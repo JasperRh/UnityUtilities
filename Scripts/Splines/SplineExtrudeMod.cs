@@ -423,8 +423,10 @@ namespace Crimsilk.Utilities.Splines
 
            public float2 GetPosition(float t, int index)
            {
-               float angle = math.radians(Rotation + (index * 360f / Sides));
-               return new float2(math.cos(angle) * Width * 0.5f, math.sin(angle) * Height * 0.5f);
+               var radiusScale = 1f / math.cos(math.PI / Sides);
+               var phaseShift = 90f - (180f / Sides);
+               float angle = math.radians(Rotation + phaseShift + (index * 360f / Sides));
+               return new float2(math.cos(angle) * Width * 0.5f * radiusScale, math.sin(angle) * Height * 0.5f * radiusScale);
            }
        }
    }
