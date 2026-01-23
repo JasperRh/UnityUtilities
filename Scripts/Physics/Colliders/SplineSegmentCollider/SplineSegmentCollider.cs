@@ -32,11 +32,22 @@ namespace Crimsilk.Utilities.Physics.Colliders.SplineSegmentCollider
             Spline.Changed -= OnSplineChanged;
         }
 
+        private void OnEnable()
+        {
+            UpdateColliders();
+        }
+
+        private void OnDisable()
+        {
+            _boxPool.ForEach(box => box.gameObject.SetActive(false));
+        }
+
         private void OnSplineChanged(Spline spline, int knotIndex, SplineModification modification)
         {
-            if (_container == null) return;
+            if (!enabled || _container == null) 
+                return;
 
-            bool belongsToContainer = false;
+            var belongsToContainer = false;
             foreach (var s in _container.Splines)
             {
                 if (s == spline)
