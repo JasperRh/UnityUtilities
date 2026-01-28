@@ -310,7 +310,7 @@ namespace Crimsilk.Utilities.Splines
 
                var tempMesh = new Mesh();
                var span = Mathf.Abs(settings.Range.y - settings.Range.x);
-               settings.SegmentCount = Mathf.Max((int)Mathf.Ceil(s.GetLength() * span * m_SegmentsPerUnit), 1);
+               settings.SegmentCount = Mathf.Max((int)Mathf.Ceil(s.GetLength() * span * m_SegmentsPerUnit), 2);
 
                SplineMesh.Extrude(s, tempMesh, settings);
                combines.Add(new CombineInstance() { mesh = tempMesh, transform = Matrix4x4.identity });
