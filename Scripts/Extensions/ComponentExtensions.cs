@@ -193,5 +193,16 @@ namespace Crimsilk.Utilities.Extensions
             
             return parentComponent;
         }
+        
+        /// <summary>
+        /// Returns the topmost component of type T in the parent hierarchy of the given component. If no such component exists, returns default.
+        /// </summary>
+        public static T GetComponentTop<T>(this Component c)
+        {
+            var components = c.GetComponentsInParent<T>();
+            if (components == null || components.Length == 0) 
+                return default;
+            return components[^1];
+        }
     }
 }
